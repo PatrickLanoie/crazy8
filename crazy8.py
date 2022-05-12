@@ -6,6 +6,7 @@ import random
 import copy
 
 
+
 class LinkedList:
     class _Node:
         def __init__(self, v, n):   # Constructeur Node
@@ -149,33 +150,33 @@ liste1 = LinkedList()
 listeP = LinkedList()
 
 # Op sur liste vide
-print(listeV)
+#print(listeV)
 #listeV.pop()
 #listeV.peek()
 #listeV.remove(1)
-listeV.append(2)
+#listeV.append(2)
 #listeV.add(1)
-print(listeV)
+#print(listeV)
 
 # Op sur liste 1 élément
-liste1.append(1)
-print(liste1.peek())
-liste1.pop()
-print(liste1)
+#liste1.append(1)
+#print(liste1.peek())
+#liste1.pop()
+#print(liste1)
 
-for i in range(10):
-    listeP.append(i)
+#for i in range(10):
+    #listeP.append(i)
 
-print(listeP)
-listeP.add(42)
-print(listeP.peek())
-listeP.pop()
-listeP.remove(0)
-listeP.remove(9)
-listeP.remove(7)
-print(listeP.remove(99))
-listeP.add(42)
-print(listeP)
+#print(listeP)
+#listeP.add(42)
+#print(listeP.peek())
+#listeP.pop()
+#listeP.remove(0)
+#listeP.remove(9)
+#listeP.remove(7)
+#print(listeP.remove(99))
+#listeP.add(42)
+#print(listeP)
 
 ##############################################################################
 
@@ -219,23 +220,70 @@ class CircularLinkedList(LinkedList):
             self._head.next = self._head        # Circulaire
 
         # NC
-        
+        else: 
+            current = self._head
+
+            for i in range (self._size - 1): 
+                current = current.next
+            
+            current.next = self._Node(v, self._head)
+
+        self._size += 1
+
 
     # Reverses the next pointers of all nodes to previous node
     def reverse(self):
         #TO DO
-        pass
+
+        # EC : Liste vide ou 1 élément = aucun changement 
+        if self._size <= 1:
+            pass
+
+        # NC 
+        current = self._head
+        first = current
+
+        # EC : Premier noeud 
+        
+        for i in range(self._size): 
+
+
 
     # Removes head node and returns its value
     def pop(self):
         #TO DO
-        pass
+        # EC : Liste vide
+        self.emptyListCheck()
+
+        current = self._head
+        nodeToPop = current
+        # EC : 1 seul Node
+        if(self._size == 1):
+            self._head = None
+        
+        # NC
+        else: 
+            self._head = current.next
+
+            for i in range(self._size - 1): 
+                current = current.next
+
+            current.next = nodeToPop.next   # link
+            self._head = nodeToPop.next     # new head
+
+        self._size -= 1
+        return nodeToPop
+
+            
+            
+
+        
 
 ################# TESTS ######################################################
 
-listeV = LinkedList()
-liste1 = LinkedList()
-listeP = LinkedList()
+listeV = CircularLinkedList()
+liste1 = CircularLinkedList()
+listeP = CircularLinkedList()
 
 # Op sur liste vide
 print(listeV)
@@ -248,22 +296,26 @@ print(listeV)
 
 # Op sur liste 1 élément
 liste1.append(1)
-print(liste1.peek())
-liste1.pop()
+#print(liste1.peek())
+#liste1.pop()
 print(liste1)
 
 for i in range(10):
     listeP.append(i)
 
 print(listeP)
-listeP.add(42)
-print(listeP.peek())
+#listeP.add(42)
+#print(listeP.peek())
+#listeP.pop()
+#listeP.remove(7)
+#print(listeP.remove(99))
+#listeP.add(42)
+listeP.next()
+listeP.next()
+print(listeP)
 listeP.pop()
-listeP.remove(0)
-listeP.remove(9)
-listeP.remove(7)
-print(listeP.remove(99))
-listeP.add(42)
+print(listeP)
+listeP.next()
 print(listeP)
 
 ##############################################################################
