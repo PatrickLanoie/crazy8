@@ -205,10 +205,12 @@ class CircularLinkedList(LinkedList):
         #TO DO              ????
         pass
 
+
     # Moves head pointer to next node in list
     def next(self):
         #TO DO
         self._head = self._head.next
+
 
     # Adds a node of value v to the end of the list
     def append(self, v):
@@ -235,19 +237,25 @@ class CircularLinkedList(LinkedList):
     def reverse(self):
         #TO DO
 
-        # EC : Liste vide ou 1 élément = aucun changement 
-        if self._size <= 1:
+        # EC : Liste vide, 1 noeud ou 2 noeuds = aucun changement 
+        if self._size <= 2:
             pass
 
         # NC 
-        current = self._head
-        first = current
+        current = self._head    # 1er node
+        prev2 = current
 
-        # EC : Premier noeud 
+        current = current.next  # 2e node
+        prev = current
         
         for i in range(self._size): 
+            current = current.next      # Jump
 
+            prev.next = prev2           # Link
 
+            prev2 = prev                # Inc
+            prev = current              
+         
 
     # Removes head node and returns its value
     def pop(self):
@@ -274,11 +282,7 @@ class CircularLinkedList(LinkedList):
         self._size -= 1
         return nodeToPop
 
-            
-            
-
-        
-
+      
 ################# TESTS ######################################################
 
 listeV = CircularLinkedList()
@@ -300,7 +304,7 @@ liste1.append(1)
 #liste1.pop()
 print(liste1)
 
-for i in range(10):
+for i in range(5):
     listeP.append(i)
 
 print(listeP)
@@ -313,9 +317,11 @@ print(listeP)
 listeP.next()
 listeP.next()
 print(listeP)
-listeP.pop()
-print(listeP)
-listeP.next()
+#listeP.pop()
+#print(listeP)
+#listeP.next()
+#print(listeP)
+listeP.reverse()
 print(listeP)
 
 ##############################################################################
