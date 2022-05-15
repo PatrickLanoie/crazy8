@@ -341,7 +341,8 @@ class Card:
     def __eq__(self, other):
         #par defaut, __eq__ c'est ==
         #TO DO
-        pass
+        return self._rank == other._rank #car les ranks sont les memes malgre la couelru
+
 
 class Hand:
     def __init__(self):
