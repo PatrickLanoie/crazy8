@@ -9,7 +9,7 @@ import copy
 
 class LinkedList:
     class _Node:
-        def __init__(self, v, n):   # Constructeur Node
+        def __init__(self, v, n):   # Constructeur Node 
             self.value = v
             self.next = n
 
@@ -145,9 +145,9 @@ class LinkedList:
 
 ################# TESTS ######################################################
 
-listeV = LinkedList()
-liste1 = LinkedList()
-listeP = LinkedList()
+#listeV = LinkedList()
+#liste1 = LinkedList()
+#listeP = LinkedList()
 
 # Op sur liste vide
 #print(listeV)
@@ -202,8 +202,8 @@ class CircularLinkedList(LinkedList):
         return result
 
     def __iter__(self):
-        #TO DO              ????
-        pass
+        #TO DO      
+        return(self) 
 
 
     # Moves head pointer to next node in list
@@ -285,44 +285,44 @@ class CircularLinkedList(LinkedList):
       
 ################# TESTS ######################################################
 
-listeV = CircularLinkedList()
-liste1 = CircularLinkedList()
-listeP = CircularLinkedList()
+#listeV = CircularLinkedList()
+#liste1 = CircularLinkedList()
+#listeP = CircularLinkedList()
 
 # Op sur liste vide
-print(listeV)
+#print(listeV)
 #listeV.pop()
 #listeV.peek()
 #listeV.remove(1)
-listeV.append(2)
+#listeV.append(2)
 #listeV.add(1)
-print(listeV)
+#print(listeV)
 
 # Op sur liste 1 élément
-liste1.append(1)
+#liste1.append(1)
 #print(liste1.peek())
 #liste1.pop()
-print(liste1)
+#print(liste1)
 
-for i in range(5):
-    listeP.append(i)
+#for i in range(5):
+#    listeP.append(i)
 
-print(listeP)
+#print(listeP)
 #listeP.add(42)
 #print(listeP.peek())
 #listeP.pop()
 #listeP.remove(7)
 #print(listeP.remove(99))
 #listeP.add(42)
-listeP.next()
-listeP.next()
-print(listeP)
+#listeP.next()
+#listeP.next()
+#print(listeP)
 #listeP.pop()
 #print(listeP)
 #listeP.next()
 #print(listeP)
-listeP.reverse()
-print(listeP)
+#listeP.reverse()
+#print(listeP)
 
 ##############################################################################
 
@@ -341,7 +341,7 @@ class Card:
     def __eq__(self, other):
         #par defaut, __eq__ c'est ==
         #TO DO
-        return self._rank == other._rank #car les ranks sont les memes malgre la couelru
+        return self._rank == other._rank #car les ranks sont les memes malgre la couleur
 
 
 class Hand:
@@ -402,6 +402,7 @@ class Deck(LinkedList):
     def draw(self):
         return self.pop()
 
+
     def shuffle(self, cut_precision = 0.05):
         # Cutting the two decks in two
         center = len(self) / 2
@@ -410,15 +411,62 @@ class Deck(LinkedList):
         # other_deck must point the kth node in self
         # (starting at 0 of course)
         # other_deck = #TO DO
+        other_deck = self._head
+        for _ in range(k - 1):              # Se rendre au node avant k
+            other_deck = other_deck.next
+        
+        prev = other_deck                   # Node k-1
+        other_deck = other_deck.next        # Node k
+        prev.next = None                    # Sépare la liste
 
         #TO DO: seperate both lists
 
+
         # Merging the two decks together
         if random.uniform(0,1) < 0.5:
-            pass
             #switch self._head and other_deck pointers
-        
-        #TO DO
+            temp = self._head
+            self._head = other_deck
+            other_deck = temp 
+
+        current1 = self._head
+        current2 = other_deck
+
+        # Tant que les 2 listes n'ont pas été parcourues
+        while ((current1 != None) or (current2 != None)): 
+
+            prev1 = current1    # Node précédent liste 1
+            prev2 = current2    # Node précédent liste 2
+
+            # Inc les currents si pas à la fin de la liste
+            if current1 != None:
+                current1 = current1.next
+            if current2 != None: 
+                current2 = current2.next
+
+            # EC : Premier node après fin liste 1    
+            if current2 == None and prev2 == None:
+                prev1.next = current1
+            # EC : Nodes suivants après fin liste 1 
+            elif current1 == None and prev1 != None:
+                prev1.next = prev2
+            # EC : Fin liste 2 
+            elif current1 == None:
+                prev2.next = current2
+            # Cas de base 
+            else:
+                prev1.next = prev2
+                prev2.next = current1
+
+
+
+############### TESTS ###############
+deckT = Deck()
+print(deckT)
+
+deckT.shuffle()
+print(deckT)
+print(len(deckT))
 
 
 class Player():
@@ -481,6 +529,15 @@ class Game:
     # and shuffles it 7 times
     def reset_deck(self):
         #TO DO
+        # Discard pile = linked list 
+        # deck = herite de linked list 
+
+        self.discard_pile.reverse()
+
+        current = self.discard_pile._head.next  # Commence 2e carte 
+
+
+
         pass
 
     # Safe way of drawing a card from the deck
