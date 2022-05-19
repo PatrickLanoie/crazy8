@@ -22,17 +22,17 @@ class LinkedList:
 
         # EC : liste vide
         if self._size == 0:
-            return ""
+            return "[]"
         
         # NC
-        result = ""
+        result = "["
         current = self._head
 
         while current != None:
-            result += str(current.value) + '->'
+            result += str(current.value) + ", "
             current = current.next
         
-        return result[:-2]      # Slice pour éliminer dernière flêche, différencier de liste circulaire
+        return result[:-2] + "]"      # Slice pour éliminer dernière flêche, différencier de liste circulaire
 
 
     def __len__(self):
@@ -42,11 +42,6 @@ class LinkedList:
     def isEmpty(self):
         #TO DO
         return self._size == 0
-
-
-    def emptyListCheck(self):
-        if self.isEmpty():
-            raise RuntimeError("Oh no! The list is empty :(")
 
 
     # Adds a node of value v to the beginning of the list
@@ -71,7 +66,7 @@ class LinkedList:
         
         # EC : Liste vide 
         if self._size == 0:
-            self.add(v)
+            self._head = self._Node(v, None)
         
         # NC
         else:
@@ -89,21 +84,23 @@ class LinkedList:
     def pop(self):
         #TO DO
         # EC : Liste vide
-        self.emptyListCheck()
+        if self.isEmpty(): 
+            return None
 
         # NC
         first = self._head
         self._head = first.next
 
         self._size -= 1
-        return first
+        return first.value
 
 
     # Returns the value of the first node of the list
     def peek(self):
         #TO DO
-        # EC : Liste vide     À voir si on veut cette erreur ou retourner 0, -1 ... 
-        self.emptyListCheck()
+        # EC : Liste vide  
+        if self.isEmpty(): 
+            return None
 
         # NC
         return self._head.value
@@ -113,8 +110,9 @@ class LinkedList:
     def remove(self, v):
         # TO DO
 
-        # EC : Liste vide     À voir si on veut cette erreur ou retourner 0, -1 ... 
-        self.emptyListCheck()
+        # EC : Liste vide  
+        if self.isEmpty(): 
+            return None
         
         # NC
         current = self._head
@@ -141,7 +139,7 @@ class LinkedList:
             return current.value
         # Pas trouvé 
         else:
-            return -1  
+            return None 
 
 ################# TESTS ######################################################
 
@@ -189,21 +187,23 @@ class CircularLinkedList(LinkedList):
 
         # EC : liste vide
         if self._size == 0:
-            return ""
+            return "[]"
         
         # NC
-        result = ""
+        result = "["
         current = self._head
 
         for i in range (self._size):
-            result += str(current.value) + '->'
+            result += str(current.value) + ", "
             current = current.next
         
-        return result
+        return result[:-2] + "]"
 
     def __iter__(self):
         #TO DO      
-        return(self) 
+        # Yields all values in the circular linked list starting from head
+        for i in range(len(self)):
+            yield self._head.value
 
 
     # Moves head pointer to next node in list
@@ -261,10 +261,12 @@ class CircularLinkedList(LinkedList):
     def pop(self):
         #TO DO
         # EC : Liste vide
-        self.emptyListCheck()
+        if self.isEmpty(): 
+            return None
 
         current = self._head
         nodeToPop = current
+
         # EC : 1 seul Node
         if(self._size == 1):
             self._head = None
@@ -280,7 +282,7 @@ class CircularLinkedList(LinkedList):
             self._head = nodeToPop.next     # new head
 
         self._size -= 1
-        return nodeToPop
+        return nodeToPop.value
 
       
 ################# TESTS ######################################################
@@ -341,7 +343,32 @@ class Card:
     def __eq__(self, other):
         #par defaut, __eq__ c'est ==
         #TO DO
-        return self._rank == other._rank #car les ranks sont les memes malgre la couleur
+        
+        # EC : Comparaison avec None --> always false 
+        if other == None :
+            return False
+
+
+        # Ajuster les ranks s'ils ne sont pas sous forme numérique 
+        rankNumSelf = self.checkRank(self._rank)
+        rankNumOther = self.checkRank(other._rank)
+
+
+        return (rankNumSelf == rankNumOther) and (self._suit == other._suit)
+
+
+    def checkRank(self, rank): 
+        newRank = rank
+        if rank == "A":
+            newRank = "1"
+        elif rank == "J":
+            newRank = "11" 
+        elif rank == "Q":
+            newRank = "12"
+        elif rank == "K":
+            newRank = "13"
+
+        return newRank 
 
 
 class Hand:
@@ -374,8 +401,41 @@ class Hand:
     # the criteria contained in *args and None if the card
     # isn't in the hand. The tests show how *args must be used.
     def play(self, *args):
-        #TO DO
-        pass
+        # TO DO
+        rank = None
+        suit = None 
+        card = None 
+
+        # Unpack les arguments et les ranges dans les variables rank ou suit 
+        # selon le cas
+        for i in args: 
+            if i == 's' or i == 'h' or i == 'd' or i == 'c':
+                suit = i
+            else: 
+                rank = i
+        
+        #print(rank)
+        #print(suit)
+        
+        # Cherche la carte dans la main 
+        if suit != None: 
+            listSuit = self.__getitem__(suit)   
+            if rank != None:                    # suit et rank donné
+                card = listSuit.remove(Card(rank, suit))
+            else:                               # suit only
+                card = listSuit.pop()
+        else:                                   # rank only
+            for s, l in self.cards.items():
+                #print(s)
+                #print(l)
+                card = l.remove(Card(rank, s))
+                #print(card)
+                #print(l)
+                if card == Card(rank, s): 
+                    break 
+
+        print(card)
+        return card 
 
 class Deck(LinkedList):
     def __init__(self, custom=False):
@@ -400,7 +460,7 @@ class Deck(LinkedList):
                     self.add(Card(r,s))
 
     def draw(self):
-        return self.pop()
+        return self.pop()       # retourne un node 
 
 
     def shuffle(self, cut_precision = 0.05):
@@ -461,12 +521,12 @@ class Deck(LinkedList):
 
 
 ############### TESTS ###############
-deckT = Deck()
-print(deckT)
+#deckT = Deck()
+#print(deckT)
 
-deckT.shuffle()
-print(deckT)
-print(len(deckT))
+#deckT.shuffle()
+#print(deckT)
+#print(len(deckT))
 
 
 class Player():
@@ -490,6 +550,15 @@ class Player():
             top_card = game.discard_pile.peek()
 
             #TO DO
+
+            # PL VERSION
+
+            # Forcé de piger des cartes 
+            if game.drawCount > 0: 
+                carte = 5
+
+
+
 
             return game
 
@@ -528,27 +597,40 @@ class Game:
     # top card back into the deck in reverse order
     # and shuffles it 7 times
     def reset_deck(self):
-        #TO DO
-        # Discard pile = linked list 
-        # deck = herite de linked list 
+        #TO DO 
 
-        self.discard_pile.reverse()
+        if self.discard_pile.isEmpty:       # EC : Début de la partie 
+            return
 
-        current = self.discard_pile._head.next  # Commence 2e carte 
+        current = self.discard_pile._head.next # Commence à la deuxième carte 
 
+        # Remet les cartes dans le deck en ordre inverse 
+        for _ in range(len(self.discard_pile - 1)): 
+            self.deck.append(current.value)
+            current = current.next
+        
+        # Garde seulement la première carte dans Discard pile 
+        self.discard_pile._head.next = None 
+        
+        # Shuffle le deck 7 fois 
+        for _ in range(7):
+            self.deck.shuffle()
 
-
-        pass
 
     # Safe way of drawing a card from the deck
     # that resets it if it is empty after card is drawn
     def draw_from_deck(self, num):
         #TO DO
-        pass
+        card = self.deck.draw()  # Card est un node 
+
+        if len(self.deck) == 0:  # Shuffle si deck est vide
+            self.reset_deck() 
+        
+        return card
             
 
     def start(self, debug=False):
-        # Ordre dans lequel les joeurs gagnent la partie
+        # Ordre dans lequel les joueurs gagnent la partie
         result = LinkedList()
 
         self.reset_deck()
@@ -580,31 +662,44 @@ class Game:
             # Player didn't play a card => must draw from pile
             if new_top_card == old_top_card:
                #TO DO
-               pass
+               player.hand.add(self.draw_from_deck(1))
+
             # Player played a card
             else:
-                #TO DO
+                #TO DO      rien ??
                 pass
             # Handling player change
             # Player has finished the game
             if len(player.hand) == 0 and player.score == 1:
                 #TO DO
-                pass
+
+                # Partie pas terminée 
+                self.players.pop()          # Élimine le jouer qui a terminé
+
+                if len(self.players) == 1: 
+                    self.players.pop()          # Élimine le dernier joueur 
+                
+            # Joueur n'a pas terminé sa partie
             else:
                 # Player is out of cards to play
-                if len(player.hand) == 0:
+                if len(player.hand) == 0:           # score != 1 
                     #TO DO
-                    pass
+                    player.score -= 1
+
+                    for i in range(player.score):   # Pige un nbr de carte = à son nouveau score
+                        player.hand.add(self.deck.draw())    
+
+
                 # Player has a single card left to play
                 elif len(player.hand) == 1:
                     #TO DO
-                    pass
+                    print("*Knock, knock* - " + player.name + "has a single card left!")
                 self.players.next()
         return result
 
 
 if __name__ == '__main__':
-    '''
+    #'''
     random.seed(420)
     game = Game()
     print(game.start(debug=True))
@@ -694,4 +789,4 @@ if __name__ == '__main__':
     temp.shuffle()
     assert(str(temp) == '[A♡, A♠, 2♡, 2♠, 3♡, 3♠]')
     assert(d.draw() == Card('A','s'))
-    '''
+    #'''
