@@ -489,6 +489,11 @@ class Player():
             if ((top_card._rank == '2' or top_card == Card('Q', 's')) and
                 game.draw_count != 0): # EC : 2 sur le discard pile, mais pas de pige  
 
+                # EC : 2 frimé = pige automatiquement 
+                if game.declared_suit != '':
+                    print(self.name + " draws " + str(game.draw_count)) 
+                    return game
+
                 cardToPlay = self.hand.play('2') # Joue un 2 si on en a un
                 
                 if cardToPlay == None: 
@@ -506,8 +511,6 @@ class Player():
 
                 if cardToPlay == None : # Sinon, jouer une frime + change suit 
                     cardToPlay = self.hand.play(str(self.score), self.score)
-                    if cardToPlay != None: 
-                        game.declared_suit = self.hand.get_most_common_suit()
                 
                 if cardToPlay == None: # Sinon pige
                     print(self.name + " draws 1 card" ) 
@@ -515,7 +518,10 @@ class Player():
             
             game.discard_pile.add(cardToPlay)   # Jouer la carte 
 
-            if cardToPlay._rank != str(self.score):  # Reset declared suit si on ne joue pas une frime 
+            if cardToPlay.checkRank(cardToPlay._rank) == str(self.score):  # Declare suit si frime 
+                game.declared_suit = self.hand.get_most_common_suit()
+
+            if cardToPlay.checkRank(cardToPlay._rank) != str(self.score):  # Reset declared suit si on ne joue pas une frime 
                 game.declared_suit = ""
             
             print(self.name + " " + str(cardToPlay)) 
@@ -695,7 +701,7 @@ class Game:
 
                     self.draw_from_deck(player.score)   # Pige un nbr de carte = à son nouveau score   
 
-                    print(str(player) + ' out cards. draw ' + str(player.score))
+                    print(str(player) + ' out cards. draw ' + str(player.score) + "-----------------------")
 
                 # Player has a single card left to play
                 elif len(player.hand) == 1:
