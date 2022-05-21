@@ -169,8 +169,10 @@ class CircularLinkedList(LinkedList):
     def __iter__(self):
         #TO DO      
         # Yields all values in the circular linked list starting from head
+        current = self._head
         for i in range(len(self)):
-            yield self._head.value
+            yield current.value
+            current = current.next
 
 
     # Moves head pointer to next node in list
@@ -253,6 +255,7 @@ class CircularLinkedList(LinkedList):
 
       
 ################# TESTS ######################################################
+
 
 ##############################################################################
 
@@ -491,7 +494,7 @@ class Player():
 
                 # EC : 2 frimé = pige automatiquement 
                 if game.declared_suit != '':
-                    print(self.name + " draws " + str(game.draw_count)) 
+                    #print(self.name + " draws " + str(game.draw_count)) 
                     return game
 
                 cardToPlay = self.hand.play('2') # Joue un 2 si on en a un
@@ -500,7 +503,7 @@ class Player():
                     cardToPlay = self.hand.play('Q','s', self.score) # Sinon dame de pique
 
                 if cardToPlay == None:  # Sinon, pige
-                    print(self.name + " draws " + str(game.draw_count)) 
+                    #print(self.name + " draws " + str(game.draw_count)) 
                     return game 
             else: 
                 suitToPlay = game.declared_suit if game.declared_suit != '' else top_card._suit
@@ -513,7 +516,7 @@ class Player():
                     cardToPlay = self.hand.play(str(self.score), self.score)
                 
                 if cardToPlay == None: # Sinon pige
-                    print(self.name + " draws 1 card" ) 
+                    #print(self.name + " draws 1 card" ) 
                     return game 
             
             game.discard_pile.add(cardToPlay)   # Jouer la carte 
@@ -524,7 +527,7 @@ class Player():
             if cardToPlay.checkRank(cardToPlay._rank) != str(self.score):  # Reset declared suit si on ne joue pas une frime 
                 game.declared_suit = ""
             
-            print(self.name + " " + str(cardToPlay)) 
+            #print(self.name + " " + str(cardToPlay)) 
             return game
 
         else:
@@ -552,19 +555,19 @@ class Game:
         result += 'Top Card: ' + str(self.discard_pile.peek()) + '\n'
         
         # sans itér
-        player = self.players._head
-        for _ in range(4): 
-            result += str(player.value) + ': '
-            result += 'Score: ' + str(player.value.score) + ', '
-            result += str(player.value.hand) + '\n'
-            player = player.next
+        #player = self.players._head
+        #for _ in range(4): 
+        #    result += str(player.value) + ': '
+        #    result += 'Score: ' + str(player.value.score) + ', '
+        #    result += str(player.value.hand) + '\n'
+        #    player = player.next
         
         
-        #
-        #for player in self.players:
-        #    result += str(player) + ': '
-        #    result += 'Score: ' + str(player.score) + ', '
-        #    result += str(player.hand) + '\n'
+        
+        for player in self.players:
+            result += str(player) + ': '
+            result += 'Score: ' + str(player.score) + ', '
+            result += str(player.hand) + '\n'
         return result
 
 
@@ -591,7 +594,7 @@ class Game:
         for _ in range(7):
             self.deck.shuffle()
         
-        print('reset---------------------------------------------------')
+        #print('reset---------------------------------------------------')
 
 
     # Safe way of drawing a card from the deck
@@ -621,21 +624,21 @@ class Game:
 
         # Each player draws 8 cards
         # test sans iter
-        player = self.players._head
-        for _ in range(4): 
-            for _ in range(8): 
-                player.value.hand.add(self.deck.draw())
-            print(player.value.name + str(player.value.hand))
-            player = player.next
+        #player = self.players._head
+        #for _ in range(4): 
+        #    for _ in range(8): 
+        #        player.value.hand.add(self.deck.draw())
+        #    print(player.value.name + str(player.value.hand))
+        #    player = player.next
 
 
-        #for player in self.players:
-        #    for i in range(8):
-        #        player.hand.add(self.deck.draw())
+        for player in self.players:
+            for i in range(8):
+                player.hand.add(self.deck.draw())
 
         self.discard_pile.add(self.deck.draw())
 
-        print("top card = " + str(self.discard_pile))
+        #print("top card = " + str(self.discard_pile))
 
         transcript = open('result.txt','w',encoding='utf-8')
         if debug:
@@ -660,9 +663,13 @@ class Game:
                #TO DO
                 if self.draw_count != 0:    # Pige > 1 une carte
                     self.draw_from_deck(self.draw_count)
+                    transcript.write(player.name + " draws " + str(self.draw_count) + " cards\n")
                     self.draw_count = 0     # Reset draw count 
                 else: 
                     self.draw_from_deck(1)  # Pige une carte
+                    transcript.write(player.name + " draws 1 card\n")
+
+            
 
             # Player played a card
             else:   # Check si carte spéciale 
@@ -680,6 +687,8 @@ class Game:
 
                 # Frime traitée dans play 
 
+                transcript.write(player.name + " plays " + str(new_top_card) + "\n")
+
                 
             # Handling player change
             # Player has finished the game
@@ -687,9 +696,14 @@ class Game:
                 #TO DO
 
                 # Partie pas terminée 
+                result.append(player)
+                transcript.write(player.name + " finishes in position " + str(len(result)) + "\n")
                 self.players.pop()          # Élimine le jouer qui a terminé
 
-                if len(self.players) == 1: 
+                if len(self.players) == 1:
+                    player = self.players.peek()
+                    result.append(player) 
+                    transcript.write(player.name + " finishes last\n")
                     self.players.pop()          # Élimine le dernier joueur 
                 
             # Joueur n'a pas terminé sa partie
@@ -701,12 +715,15 @@ class Game:
 
                     self.draw_from_deck(player.score)   # Pige un nbr de carte = à son nouveau score   
 
-                    print(str(player) + ' out cards. draw ' + str(player.score) + "-----------------------")
+                    transcript.write(player.name + " is out of cards to play! " +
+                    player.name + " draws " + str(player.score) + " cards\n")
+
+                    #print(str(player) + ' out cards. draw ' + str(player.score) + "-----------------------")
 
                 # Player has a single card left to play
                 elif len(player.hand) == 1:
                     #TO DO
-                    print("*Knock, knock* - " + player.name + " has a single card left!")
+                    transcript.write("*Knock, knock* - " + player.name + " has a single card left!\n")
                 
                 if new_top_card._rank == 'J' and old_top_card != new_top_card:    # skip next player
                     self.players.next()
@@ -716,7 +733,7 @@ class Game:
 
 
 if __name__ == '__main__':
-    #'''
+    
     random.seed(420)
     game = Game()
     print(game.start(debug=True))
@@ -806,4 +823,4 @@ if __name__ == '__main__':
     temp.shuffle()
     assert(str(temp) == '[A♡, A♠, 2♡, 2♠, 3♡, 3♠]')
     assert(d.draw() == Card('A','s'))
-    #'''
+    
