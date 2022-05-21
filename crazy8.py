@@ -1,30 +1,29 @@
 # Camille, Divisia, 20119289
 # Patrick, Lanoie, 20212654
 
+# Completion of a program to simulate a game of Crazy Eights Countdown
+
 import math
 import random
 import copy
 
-
-
+# Implementation of a linked list data structure 
 class LinkedList:
+    # Components of the linked list 
     class _Node:
-        def __init__(self, v, n):   # Constructeur Node 
+        def __init__(self, v, n):   # Node constructor  
             self.value = v
             self.next = n
 
-    def __init__(self):             # Constructeur LinkedList
+    def __init__(self):             # LinkedList constructor 
         self._head = None
         self._size = 0
 
     def __str__(self):
-        #TO DO
-
-        # EC : liste vide
-        if self._size == 0:
+        # EC : empty list 
+        if self.isEmpty(): 
             return "[]"
         
-        # NC
         result = "["
         current = self._head
 
@@ -32,27 +31,23 @@ class LinkedList:
             result += str(current.value) + ", "
             current = current.next
         
-        return result[:-2] + "]"      # Slice pour éliminer dernière flêche, différencier de liste circulaire
+        return result[:-2] + "]"    # Slice to remove final ", "
 
 
     def __len__(self):
         return self._size
 
-
+    # Return boolean True if LinkedList is empty 
     def isEmpty(self):
-        #TO DO
         return self._size == 0
 
 
     # Adds a node of value v to the beginning of the list
     def add(self, v):
-        # TO DO
-
-        # EC : Liste vide 
-        if self._size == 0:
+        # EC : empty list  
+        if self.isEmpty(): 
             self._head = self._Node(v, None)
         
-        # NC
         else:
             newNode = self._Node(v, self._head)
             self._head = newNode
@@ -62,13 +57,10 @@ class LinkedList:
 
     # Adds a node of value v to the end of the list
     def append(self,v):
-        #TO DO
-        
-        # EC : Liste vide 
-        if self._size == 0:
+        # EC : empty list 
+        if self.isEmpty(): 
             self._head = self._Node(v, None)
         
-        # NC
         else:
             current = self._head
 
@@ -80,83 +72,72 @@ class LinkedList:
         self._size += 1
 
         
-    # Removes and returns the first node of the list
+    # Removes and returns value of the first node of the list
     def pop(self):
-        #TO DO
-        # EC : Liste vide
-        if self.isEmpty(): 
+        # EC : empty list 
+        if self.isEmpty():  
             return None
 
-        # NC
-        first = self._head
-        self._head = first.next
+        nodeToPop = self._head
+        self._head = nodeToPop.next
 
         self._size -= 1
-        return first.value
+        return nodeToPop.value
 
 
     # Returns the value of the first node of the list
     def peek(self):
-        #TO DO
-        # EC : Liste vide  
-        if self.isEmpty(): 
+        # EC : Empty list  
+        if self.isEmpty():  
             return None
 
-        # NC
         return self._head.value
         
 
     # Removes the first node of the list with value v and return v
     def remove(self, v):
-        # TO DO
-
-        # EC : Liste vide  
+        # EC : Empty list 
         if self.isEmpty(): 
             return None
         
-        # NC
         current = self._head
 
-        # EC : Match premier node 
+        # EC : Match on first node 
         if current.value == v:  
             self._head = current.next
-
-        # Nodes suivants 
+ 
+        # Other nodes 
         else:   
             prev = current
             current = current.next
 
             while current != None:
-                if current.value == v:
-                    prev.next = current.next
+                if current.value == v:          # if value found link previous
+                    prev.next = current.next    # and following nodes 
                     break
+                # Incrementation 
                 prev = current
                 current = current.next
         
-        # Trouvé
+        # Found
         if current != None:
             self._size -= 1
             return current.value
-        # Pas trouvé 
+        # Not found 
         else:
             return None 
 
-################# TESTS ######################################################
 
-##############################################################################
-
+# Implementation of circular linked list data structure extending LinkedList
 class CircularLinkedList(LinkedList):
     def __init__(self):
         super().__init__()
     
     def __str__(self):
-        #TO DO
-
-        # EC : liste vide
-        if self._size == 0:
+        # EC : empty list 
+        if self.isEmpty():
             return "[]"
         
-        # NC
         result = "["
         current = self._head
 
@@ -164,10 +145,9 @@ class CircularLinkedList(LinkedList):
             result += str(current.value) + ", "
             current = current.next
         
-        return result[:-2] + "]"
+        return result[:-2] + "]"    # Slice to remove final ", "
 
-    def __iter__(self):
-        #TO DO      
+    def __iter__(self):    
         # Yields all values in the circular linked list starting from head
         current = self._head
         for i in range(len(self)):
@@ -177,90 +157,79 @@ class CircularLinkedList(LinkedList):
 
     # Moves head pointer to next node in list
     def next(self):
-        #TO DO
         self._head = self._head.next
 
 
     # Adds a node of value v to the end of the list
     def append(self, v):
-        #TO DO
-
-        # EC : Liste vide 
-        if self._size == 0:
+        # EC : empty list 
+        if self.isEmpty():
             self._head = self._Node(v, None)
-            self._head.next = self._head        # Circulaire
+            self._head.next = self._head        # Trivial circular
 
-        # NC
         else: 
             current = self._head
 
-            for i in range (self._size - 1): 
+            for _ in range (self._size - 1): 
                 current = current.next
             
-            current.next = self._Node(v, self._head)
+            current.next = self._Node(v, self._head)    # last points to first
 
         self._size += 1
 
 
     # Reverses the next pointers of all nodes to previous node
     def reverse(self):
-        #TO DO
-
-        # EC : Liste vide, 1 noeud ou 2 noeuds = aucun changement 
+        # EC : empty list or list size 1 or 2 = no change  
         if self._size <= 2:
-            pass
+            return
 
-        # NC 
-        current = self._head    # 1er node
-        prev2 = current
+        # >= 3 elements in the list 
+        current = self._head    
+        prev2 = current         # prev2 = 2 nodes behind current
 
-        current = current.next  # 2e node
-        prev = current
+        current = current.next  
+        prev = current          # prev = 1 node behind current
         
-        for i in range(self._size): 
+        for _ in range(self._size): 
             current = current.next      # Jump
 
             prev.next = prev2           # Link
 
-            prev2 = prev                # Inc
+            prev2 = prev                # Follow 
             prev = current              
          
 
     # Removes head node and returns its value
     def pop(self):
-        #TO DO
-        # EC : Liste vide
+        # EC : empty list 
         if self.isEmpty(): 
             return None
 
         current = self._head
         nodeToPop = current
 
-        # EC : 1 seul Node
+        # EC : Single node list 
         if(self._size == 1):
             self._head = None
         
-        # NC
         else: 
+            # New head
             self._head = current.next
 
-            for i in range(self._size - 1): 
+            # Go to last node 
+            for _ in range(self._size - 1): 
                 current = current.next
 
-            current.next = nodeToPop.next   # link
-            self._head = nodeToPop.next     # new head
+            # link last node with new head
+            current.next = self._head    
 
         self._size -= 1
         return nodeToPop.value
 
-      
-################# TESTS ######################################################
 
 
-##############################################################################
-
-
-
+# Representation of a card with a rank and a suit
 class Card:
     def __init__(self, r, s):
         self._rank = r
@@ -268,28 +237,30 @@ class Card:
 
     suits = {'s': '\U00002660', 'h': '\U00002661', 'd': '\U00002662', 'c': '\U00002663'}
 
+
     def __str__(self):
         return self._rank + self.suits[self._suit]
 
+
     def __eq__(self, other):
         #par defaut, __eq__ c'est ==
-        #TO DO
         
-        # EC : Comparaison avec None --> always false 
+        # EC : Card compared with None is always false 
         if other == None :
             return False
 
+        # Change rank of cards to their numerical value 
+        rankNumSelf = self.rankInNum(self._rank)
+        rankNumOther = self.rankInNum(other._rank)
 
-        # Ajuster les ranks s'ils ne sont pas sous forme numérique 
-        rankNumSelf = self.checkRank(self._rank)
-        rankNumOther = self.checkRank(other._rank)
-
-
+        # Compare rank AND suit 
         return (rankNumSelf == rankNumOther) and (self._suit == other._suit)
 
-
-    def checkRank(self, rank): 
+    # Auxiliary function to convert the letter rank of a card into its 
+    # numerical value 
+    def rankInNum(self, rank): 
         newRank = rank
+        # Changes to numerical value if a letter rank is given 
         if rank == "A":
             newRank = "1"
         elif rank == "J":
@@ -302,9 +273,13 @@ class Card:
         return newRank 
 
 
+
+# Representation of a hand with a dictionnary of 4 linked lists, one for 
+# each suit 
 class Hand:
     def __init__(self):
         self.cards = {'s': LinkedList(), 'h': LinkedList(), 'd': LinkedList(), 'c': LinkedList()}
+
 
     def __str__(self):
         result = ''
@@ -312,8 +287,10 @@ class Hand:
             result += str(suit)
         return result
 
+
     def __getitem__(self, item):
         return self.cards[item]
+
 
     def __len__(self):
         result = 0
@@ -322,8 +299,10 @@ class Hand:
 
         return result
 
+
     def add(self, card):
         self.cards[card._suit].add(card)
+
 
     def get_most_common_suit(self):
         return max(list(self.cards), key = lambda x: len(self[x]))
@@ -331,51 +310,61 @@ class Hand:
     # Returns a card included in the hand according to
     # the criteria contained in *args and None if the card
     # isn't in the hand. The tests show how *args must be used.
+    # Three args may be given : rank, suit and score 
     def play(self, *args):
-        # TO DO
+        
+        # All initialised to None 
         rank = None
         suit = None 
         card = None 
         score = None
 
-        # Unpack les arguments et les ranges dans les variables rank ou suit 
-        # selon le cas
+        # Unpack *args 
         for i in args: 
+            # score is only int 
             if isinstance(i,int): 
                 score = i
+            # suit is only one of four possibilities 
             elif i == 's' or i == 'h' or i == 'd' or i == 'c':
                 suit = i
+            # if it's not a score or a suit, it's a rank 
             else: 
                 rank = i
 
         
-        # Cherche la carte dans la main 
-        if suit != None: 
+        # Check hand to try to find the card 
+        if suit != None:                        # A suit is given 
             listSuit = self.__getitem__(suit)   
-            if rank != None:                    # suit et rank donné
+
+            if rank != None:                    # Suit and rank given 
                 card = listSuit.remove(Card(rank, suit))
 
-            else:                               # suit only
-                if len(listSuit) != 0:
+            else:                               # Suit, no rank given 
+                if len(listSuit) != 0:  # Check if hand has the suit 
                     card = listSuit.pop()
-                    if card._rank == str(score):     # Pas gaspiller frime 
-                        if len(listSuit) != 0:  # S'il y a une autre carte de cette suite 
-                            temp = listSuit.pop()   # Pige la deuxième
-                            listSuit.add(card)      # Replace la première 
+
+                    if card._rank == str(score):    # Card is a wildcard 
+
+                        if len(listSuit) != 0:      # Check if others of suit
+                            temp = listSuit.pop()       # Take second card
+                            listSuit.add(card)          # Replace first card
                             card = temp
                         else: 
-                            listSuit.add(card)      # Replace la carte 
+                            listSuit.add(card)          # Replace card
                             card = None
                             
-        else:                                   # rank only
+        else:                                   # Rank, no suit given 
             for s, l in self.cards.items():
-
+                # Check all suits in s,h,d,c order for card of given rank
                 card = l.remove(Card(rank, s))
 
                 if card == Card(rank, s): 
                     break 
         return card 
 
+
+
+# Reprensentation of a 52 card deck (no jokers) extending LinkedList
 class Deck(LinkedList):
     def __init__(self, custom=False):
         super().__init__()
@@ -398,28 +387,27 @@ class Deck(LinkedList):
                         r = 'K'
                     self.add(Card(r,s))
 
+
     def draw(self):
-        return self.pop()       # retourne un node 
+        return self.pop() 
 
 
+    # Simulate a riffle shuffle od the deck 
     def shuffle(self, cut_precision = 0.05):
-        # Cutting the two decks in two
+        # Cutting the deck in two
         center = len(self) / 2
         k = round(random.gauss(center, cut_precision*len(self)))
 
         # other_deck must point the kth node in self
         # (starting at 0 of course)
-        # other_deck = #TO DO
         other_deck = self._head
-        for _ in range(k - 1):              # Se rendre au node avant k
+        for _ in range(k - 1):              # Go to k-1 node 
             other_deck = other_deck.next
         
-        prev = other_deck                   # Node k-1
-        other_deck = other_deck.next        # Node k
-        prev.next = None                    # Sépare la liste
+        prev = other_deck                   # prev = k-1 node
+        other_deck = other_deck.next        # other_deck from kth node
 
-        #TO DO: seperate both lists
-
+        prev.next = None                    # Split
 
         # Merging the two decks together
         if random.uniform(0,1) < 0.5:
@@ -428,38 +416,24 @@ class Deck(LinkedList):
             self._head = other_deck
             other_deck = temp 
 
-        current1 = self._head
+        current1 = self._head   
         current2 = other_deck
 
-        # Tant que les 2 listes n'ont pas été parcourues
-        while ((current1 != None) or (current2 != None)): 
+        # Continue until one of the end of one of the decks
+        while ((current1 != None) and (current2 != None)): 
 
-            prev1 = current1    # Node précédent liste 1
-            prev2 = current2    # Node précédent liste 2
+            prev1 = current1    # Node before current1
+            prev2 = current2    # Node before current2 
 
-            # Inc les currents si pas à la fin de la liste
-            if current1 != None:
-                current1 = current1.next
-            if current2 != None: 
-                current2 = current2.next
+            # Advance currents through their respective decks 
+            current1 = current1.next
+            current2 = current2.next
 
-            # EC : Premier node après fin liste 1    
-            if current2 == None and prev2 == None:
-                prev1.next = current1
-            # EC : Nodes suivants après fin liste 1 
-            elif current1 == None and prev1 != None:
-                prev1.next = prev2
-            # EC : Fin liste 2 
-            elif current1 == None:
-                prev2.next = current2
-            # Cas de base 
-            else:
-                prev1.next = prev2
+            # Link previous nodes to form the new merged list 
+            prev1.next = prev2
+            if current1 != None:    # EC : other deck is longer 
                 prev2.next = current1
 
-
-
-############### TESTS ###############
 
 
 class Player():
@@ -481,57 +455,73 @@ class Player():
     def play(self, game):
         if(self.strategy == 'naive'):
             top_card = game.discard_pile.peek()
-            #print(self.hand)
 
-            #TO DO
-
-            # PL VERSION
             cardToPlay = None
 
-            # Forcé de piger des cartes 
+            # A draw card has been played by previous player 
             if ((top_card._rank == '2' or top_card == Card('Q', 's')) and
-                game.draw_count != 0): # EC : 2 sur le discard pile, mais pas de pige  
+                game.draw_count != 0):  
 
-                # EC : 2 frimé = pige automatiquement 
+                # EC : wildcard 2 is played by previous player -> Can only 
+                # play a card of declared suit to avoid drawing
                 if game.declared_suit != '':
-                    #print(self.name + " draws " + str(game.draw_count)) 
-                    return game
 
-                cardToPlay = self.hand.play('2') # Joue un 2 si on en a un
-                
-                if cardToPlay == None: 
-                    cardToPlay = self.hand.play('Q','s', self.score) # Sinon dame de pique
+                    # Try 2 of declared suit 
+                    cardToPlay = self.hand.play('2', game.declared_suit)
+                    
+                    # Try Q of spades if declared suit is spades 
+                    if cardToPlay == None and game.declared_suit == 's': 
+                        cardToPlay = self.hand.play('Q','s') # Sinon dame de pique
 
-                if cardToPlay == None:  # Sinon, pige
-                    #print(self.name + " draws " + str(game.draw_count)) 
-                    return game 
+                    # Otherwise, draw required cards and don't play
+                    if cardToPlay == None: 
+                        return game 
+
+                # Normal draw card 
+                else:   
+                    # Try 2 
+                    cardToPlay = self.hand.play('2') 
+                    
+                    # Try Q of spades 
+                    if cardToPlay == None: 
+                        cardToPlay = self.hand.play('Q','s') # Sinon dame de pique
+
+                    # Otherwise, draw required cards and don't play 
+                    if cardToPlay == None: 
+                        return game 
+
             else: 
                 suitToPlay = game.declared_suit if game.declared_suit != '' else top_card._suit
-                cardToPlay = self.hand.play(suitToPlay, self.score) # Jouer carte meme suit
 
-                if cardToPlay == None and game.declared_suit == '': # Sinon, jouer meme rang si pas frime  
+                # Try card of same suit 
+                cardToPlay = self.hand.play(suitToPlay, self.score) 
+
+                # Try card of same rank if previous card is not a wildcard
+                if cardToPlay == None and game.declared_suit == '': 
                     cardToPlay = self.hand.play(top_card._rank)
 
-                if cardToPlay == None : # Sinon, jouer une frime + change suit 
+                # Try wildcard 
+                if cardToPlay == None :  
                     cardToPlay = self.hand.play(str(self.score), self.score)
                 
-                if cardToPlay == None: # Sinon pige
-                    #print(self.name + " draws 1 card" ) 
+                # Otherwise, draw 1 card and don't play 
+                if cardToPlay == None: 
                     return game 
             
-            game.discard_pile.add(cardToPlay)   # Jouer la carte 
+            game.discard_pile.add(cardToPlay)   # Play chosen card  
 
-            if cardToPlay.checkRank(cardToPlay._rank) == str(self.score):  # Declare suit si frime 
+            # Declare suit of most common suit if a wildcard is played 
+            if cardToPlay.rankInNum(cardToPlay._rank) == str(self.score):  
                 game.declared_suit = self.hand.get_most_common_suit()
 
-            if cardToPlay.checkRank(cardToPlay._rank) != str(self.score):  # Reset declared suit si on ne joue pas une frime 
+            # Reset declared suit if a wildcard is not played 
+            if cardToPlay.rankInNum(cardToPlay._rank) != str(self.score): 
                 game.declared_suit = ""
             
-            #print(self.name + " " + str(cardToPlay)) 
             return game
 
         else:
-            # TO DO(?): Custom strategy (Bonus)
+            # TO DO(?): Custom strategy (Bonus) NOT IMPLEMENTED 
             pass
 
 class Game:
@@ -547,22 +537,13 @@ class Game:
         self.draw_count = 0
         self.declared_suit = ''
 
+
     def __str__(self):
         result = '--------------------------------------------------\n'
         result += 'Deck: ' + str(self.deck) + '\n'
         result += 'Declared Suit: ' + str(self.declared_suit) + ', '
         result += 'Draw Count: ' + str(self.draw_count) + ', '
         result += 'Top Card: ' + str(self.discard_pile.peek()) + '\n'
-        
-        # sans itér
-        #player = self.players._head
-        #for _ in range(4): 
-        #    result += str(player.value) + ': '
-        #    result += 'Score: ' + str(player.value.score) + ', '
-        #    result += str(player.value.hand) + '\n'
-        #    player = player.next
-        
-        
         
         for player in self.players:
             result += str(player) + ': '
@@ -575,45 +556,41 @@ class Game:
     # top card back into the deck in reverse order
     # and shuffles it 7 times
     def reset_deck(self):
-        #TO DO 
-
-        if not self.discard_pile.isEmpty():       # EC : Début de la partie. shuffle only
+        # EC: Beginning of game, shuffle only 
+        if not self.discard_pile.isEmpty(): 
         
-            current = self.discard_pile._head.next # Commence à la deuxième carte # NODE
+            # skip first card of discard pile 
+            current = self.discard_pile._head.next 
 
-            # Remet les cartes dans le deck en ordre inverse 
+            # Put cards in deck in reverse order  
             for _ in range(len(self.discard_pile) - 1):
                 self.deck.append(current.value)
+                self.discard_pile._size -= 1
                 current = current.next
             
-            # Garde seulement la première carte dans Discard pile + reset size
+            # Keep only first card in discard pile 
             self.discard_pile._head.next = None 
-            self.discard_pile._size = 1
         
-        # Shuffle le deck 7 fois 
+        # Shuffle deck 7 times 
         for _ in range(7):
             self.deck.shuffle()
-        
-        #print('reset---------------------------------------------------')
 
 
     # Safe way of drawing a card from the deck
     # that resets it if it is empty after card is drawn
     def draw_from_deck(self, num):
-        #TO DO
 
-        player = self.players.peek()    # Joueur qui joue 
+        player = self.players.peek()   
 
-        for _ in range(num):            # pige #num cartes 
+        for _ in range(num):    # draw num cards 
 
             card = self.deck.draw()
             
-            player.hand.add(card)  # ajoute une carte dans la main du joueur 
+            player.hand.add(card)  
 
-            if len(self.deck) == 0:  # Reset le deck s'il est vide 
+            # Check after each card if deck is empty, reset if it is 
+            if len(self.deck) == 0:  
                 self.reset_deck() 
-        
-        return
             
 
     def start(self, debug=False):
@@ -623,22 +600,11 @@ class Game:
         self.reset_deck()
 
         # Each player draws 8 cards
-        # test sans iter
-        #player = self.players._head
-        #for _ in range(4): 
-        #    for _ in range(8): 
-        #        player.value.hand.add(self.deck.draw())
-        #    print(player.value.name + str(player.value.hand))
-        #    player = player.next
-
-
         for player in self.players:
-            for i in range(8):
+            for _ in range(8):
                 player.hand.add(self.deck.draw())
 
         self.discard_pile.add(self.deck.draw())
-
-        #print("top card = " + str(self.discard_pile))
 
         transcript = open('result.txt','w',encoding='utf-8')
         if debug:
@@ -653,79 +619,80 @@ class Game:
 
             old_top_card = self.discard_pile.peek()
             
-
             self = player.play(self)
 
             new_top_card = self.discard_pile.peek()
 
             # Player didn't play a card => must draw from pile
             if new_top_card == old_top_card:
-               #TO DO
-                if self.draw_count != 0:    # Pige > 1 une carte
+                if self.draw_count != 0:    # Player draws more than 1 card
                     self.draw_from_deck(self.draw_count)
-                    transcript.write(player.name + " draws " + str(self.draw_count) + " cards\n")
+
+                    transcript.write(player.name + " draws " + 
+                    str(self.draw_count) + " cards\n")
+
                     self.draw_count = 0     # Reset draw count 
                 else: 
-                    self.draw_from_deck(1)  # Pige une carte
+                    self.draw_from_deck(1)  # Player draws a single card 
                     transcript.write(player.name + " draws 1 card\n")
 
-            
-
             # Player played a card
-            else:   # Check si carte spéciale 
-                #TO DO     
-                if new_top_card._rank == 'A':  # change l'ordre de jeu 
+            else:   
+                # Check if the played card is special     
+                if new_top_card._rank == 'A':       # change order
                     self.players.reverse()
 
-                elif new_top_card._rank == '2': # +2
+                elif new_top_card._rank == '2':     # add 2 to draw count
                     self.draw_count += 2
 
-                elif new_top_card == Card('Q', 's'):  # +5
+                elif new_top_card == Card('Q', 's'):# add 5 to draw count 
                     self.draw_count += 5
                 
-                # J traité plus loin 
+                # NB : Js are handled further down and wildcards are handled
+                # in Players.play() method
 
-                # Frime traitée dans play 
+                transcript.write(player.name + " plays " +
+                str(new_top_card) + "\n")
 
-                transcript.write(player.name + " plays " + str(new_top_card) + "\n")
-
-                
             # Handling player change
-            # Player has finished the game
+            # Player has finished his game 
             if len(player.hand) == 0 and player.score == 1:
-                #TO DO
 
-                # Partie pas terminée 
-                result.append(player)
-                transcript.write(player.name + " finishes in position " + str(len(result)) + "\n")
-                self.players.pop()          # Élimine le jouer qui a terminé
+                # Game not over  
+                result.append(player)               # Remove player that
+                self.players.pop()                  # has finished
 
+                transcript.write(player.name + " finishes in position " +
+                str(len(result)) + "\n")
+
+                # Game is over 
                 if len(self.players) == 1:
-                    player = self.players.peek()
+                    player = self.players.peek()    # Remove final player 
                     result.append(player) 
+                    self.players.pop()   
+
                     transcript.write(player.name + " finishes last\n")
-                    self.players.pop()          # Élimine le dernier joueur 
+                         
                 
-            # Joueur n'a pas terminé sa partie
+            # Player has not finished his game 
             else:
                 # Player is out of cards to play
-                if len(player.hand) == 0:           # score != 1 
-                    #TO DO
-                    player.score -= 1
+                if len(player.hand) == 0:
+                    player.score -= 1       
 
-                    self.draw_from_deck(player.score)   # Pige un nbr de carte = à son nouveau score   
+                    self.draw_from_deck(player.score)   # draw new score cards   
 
-                    transcript.write(player.name + " is out of cards to play! " +
-                    player.name + " draws " + str(player.score) + " cards\n")
-
-                    #print(str(player) + ' out cards. draw ' + str(player.score) + "-----------------------")
+                    transcript.write(player.name + 
+                    " is out of cards to play! " + player.name + 
+                    " draws " + str(player.score) + " cards\n")
 
                 # Player has a single card left to play
                 elif len(player.hand) == 1:
-                    #TO DO
+                    # Rules are rules : Knocking is essential 
                     transcript.write("*Knock, knock* - " + player.name + " has a single card left!\n")
                 
-                if new_top_card._rank == 'J' and old_top_card != new_top_card:    # skip next player
+                # Handle J if it was played by this player 
+                if new_top_card._rank == 'J' and old_top_card != new_top_card:    
                     self.players.next()
 
                 self.players.next()
