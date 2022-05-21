@@ -143,39 +143,6 @@ class LinkedList:
 
 ################# TESTS ######################################################
 
-#listeV = LinkedList()
-#liste1 = LinkedList()
-#listeP = LinkedList()
-
-# Op sur liste vide
-#print(listeV)
-#listeV.pop()
-#listeV.peek()
-#listeV.remove(1)
-#listeV.append(2)
-#listeV.add(1)
-#print(listeV)
-
-# Op sur liste 1 élément
-#liste1.append(1)
-#print(liste1.peek())
-#liste1.pop()
-#print(liste1)
-
-#for i in range(10):
-    #listeP.append(i)
-
-#print(listeP)
-#listeP.add(42)
-#print(listeP.peek())
-#listeP.pop()
-#listeP.remove(0)
-#listeP.remove(9)
-#listeP.remove(7)
-#print(listeP.remove(99))
-#listeP.add(42)
-#print(listeP)
-
 ##############################################################################
 
 class CircularLinkedList(LinkedList):
@@ -287,45 +254,6 @@ class CircularLinkedList(LinkedList):
       
 ################# TESTS ######################################################
 
-#listeV = CircularLinkedList()
-#liste1 = CircularLinkedList()
-#listeP = CircularLinkedList()
-
-# Op sur liste vide
-#print(listeV)
-#listeV.pop()
-#listeV.peek()
-#listeV.remove(1)
-#listeV.append(2)
-#listeV.add(1)
-#print(listeV)
-
-# Op sur liste 1 élément
-#liste1.append(1)
-#print(liste1.peek())
-#liste1.pop()
-#print(liste1)
-
-#for i in range(5):
-#    listeP.append(i)
-
-#print(listeP)
-#listeP.add(42)
-#print(listeP.peek())
-#listeP.pop()
-#listeP.remove(7)
-#print(listeP.remove(99))
-#listeP.add(42)
-#listeP.next()
-#listeP.next()
-#print(listeP)
-#listeP.pop()
-#print(listeP)
-#listeP.next()
-#print(listeP)
-#listeP.reverse()
-#print(listeP)
-
 ##############################################################################
 
 
@@ -405,36 +333,44 @@ class Hand:
         rank = None
         suit = None 
         card = None 
+        score = None
 
         # Unpack les arguments et les ranges dans les variables rank ou suit 
         # selon le cas
         for i in args: 
-            if i == 's' or i == 'h' or i == 'd' or i == 'c':
+            if isinstance(i,int): 
+                score = i
+            elif i == 's' or i == 'h' or i == 'd' or i == 'c':
                 suit = i
             else: 
                 rank = i
-        
-        #print(rank)
-        #print(suit)
+
         
         # Cherche la carte dans la main 
         if suit != None: 
             listSuit = self.__getitem__(suit)   
             if rank != None:                    # suit et rank donné
                 card = listSuit.remove(Card(rank, suit))
+
             else:                               # suit only
-                card = listSuit.pop()
+                if len(listSuit) != 0:
+                    card = listSuit.pop()
+                    if card._rank == str(score):     # Pas gaspiller frime 
+                        if len(listSuit) != 0:  # S'il y a une autre carte de cette suite 
+                            temp = listSuit.pop()   # Pige la deuxième
+                            listSuit.add(card)      # Replace la première 
+                            card = temp
+                        else: 
+                            listSuit.add(card)      # Replace la carte 
+                            card = None
+                            
         else:                                   # rank only
             for s, l in self.cards.items():
-                #print(s)
-                #print(l)
+
                 card = l.remove(Card(rank, s))
-                #print(card)
-                #print(l)
+
                 if card == Card(rank, s): 
                     break 
-
-        print(card)
         return card 
 
 class Deck(LinkedList):
@@ -521,12 +457,6 @@ class Deck(LinkedList):
 
 
 ############### TESTS ###############
-#deckT = Deck()
-#print(deckT)
-
-#deckT.shuffle()
-#print(deckT)
-#print(len(deckT))
 
 
 class Player():
@@ -548,18 +478,47 @@ class Player():
     def play(self, game):
         if(self.strategy == 'naive'):
             top_card = game.discard_pile.peek()
+            #print(self.hand)
 
             #TO DO
 
             # PL VERSION
+            cardToPlay = None
 
             # Forcé de piger des cartes 
-            if game.drawCount > 0: 
-                carte = 5
+            if ((top_card._rank == '2' or top_card == Card('Q', 's')) and
+                game.draw_count != 0): # EC : 2 sur le discard pile, mais pas de pige  
 
+                cardToPlay = self.hand.play('2') # Joue un 2 si on en a un
+                
+                if cardToPlay == None: 
+                    cardToPlay = self.hand.play('Q','s', self.score) # Sinon dame de pique
 
+                if cardToPlay == None:  # Sinon, pige
+                    print(self.name + " draws " + str(game.draw_count)) 
+                    return game 
+            else: 
+                suitToPlay = game.declared_suit if game.declared_suit != '' else top_card._suit
+                cardToPlay = self.hand.play(suitToPlay, self.score) # Jouer carte meme suit
 
+                if cardToPlay == None and game.declared_suit == '': # Sinon, jouer meme rang si pas frime  
+                    cardToPlay = self.hand.play(top_card._rank)
 
+                if cardToPlay == None : # Sinon, jouer une frime + change suit 
+                    cardToPlay = self.hand.play(str(self.score), self.score)
+                    if cardToPlay != None: 
+                        game.declared_suit = self.hand.get_most_common_suit()
+                
+                if cardToPlay == None: # Sinon pige
+                    print(self.name + " draws 1 card" ) 
+                    return game 
+            
+            game.discard_pile.add(cardToPlay)   # Jouer la carte 
+
+            if cardToPlay._rank != str(self.score):  # Reset declared suit si on ne joue pas une frime 
+                game.declared_suit = ""
+            
+            print(self.name + " " + str(cardToPlay)) 
             return game
 
         else:
@@ -585,11 +544,21 @@ class Game:
         result += 'Declared Suit: ' + str(self.declared_suit) + ', '
         result += 'Draw Count: ' + str(self.draw_count) + ', '
         result += 'Top Card: ' + str(self.discard_pile.peek()) + '\n'
-
-        for player in self.players:
-            result += str(player) + ': '
-            result += 'Score: ' + str(player.score) + ', '
-            result += str(player.hand) + '\n'
+        
+        # sans itér
+        player = self.players._head
+        for _ in range(4): 
+            result += str(player.value) + ': '
+            result += 'Score: ' + str(player.value.score) + ', '
+            result += str(player.value.hand) + '\n'
+            player = player.next
+        
+        
+        #
+        #for player in self.players:
+        #    result += str(player) + ': '
+        #    result += 'Score: ' + str(player.score) + ', '
+        #    result += str(player.hand) + '\n'
         return result
 
 
@@ -599,34 +568,43 @@ class Game:
     def reset_deck(self):
         #TO DO 
 
-        if self.discard_pile.isEmpty:       # EC : Début de la partie 
-            return
-
-        current = self.discard_pile._head.next # Commence à la deuxième carte 
-
-        # Remet les cartes dans le deck en ordre inverse 
-        for _ in range(len(self.discard_pile - 1)): 
-            self.deck.append(current.value)
-            current = current.next
+        if not self.discard_pile.isEmpty():       # EC : Début de la partie. shuffle only
         
-        # Garde seulement la première carte dans Discard pile 
-        self.discard_pile._head.next = None 
+            current = self.discard_pile._head.next # Commence à la deuxième carte # NODE
+
+            # Remet les cartes dans le deck en ordre inverse 
+            for _ in range(len(self.discard_pile) - 1):
+                self.deck.append(current.value)
+                current = current.next
+            
+            # Garde seulement la première carte dans Discard pile + reset size
+            self.discard_pile._head.next = None 
+            self.discard_pile._size = 1
         
         # Shuffle le deck 7 fois 
         for _ in range(7):
             self.deck.shuffle()
+        
+        print('reset---------------------------------------------------')
 
 
     # Safe way of drawing a card from the deck
     # that resets it if it is empty after card is drawn
     def draw_from_deck(self, num):
         #TO DO
-        card = self.deck.draw()  # Card est un node 
 
-        if len(self.deck) == 0:  # Shuffle si deck est vide
-            self.reset_deck() 
+        player = self.players.peek()    # Joueur qui joue 
+
+        for _ in range(num):            # pige #num cartes 
+
+            card = self.deck.draw()
+            
+            player.hand.add(card)  # ajoute une carte dans la main du joueur 
+
+            if len(self.deck) == 0:  # Reset le deck s'il est vide 
+                self.reset_deck() 
         
-        return card
+        return
             
 
     def start(self, debug=False):
@@ -636,11 +614,22 @@ class Game:
         self.reset_deck()
 
         # Each player draws 8 cards
-        for player in self.players:
-            for i in range(8):
-                player.hand.add(self.deck.draw())
+        # test sans iter
+        player = self.players._head
+        for _ in range(4): 
+            for _ in range(8): 
+                player.value.hand.add(self.deck.draw())
+            print(player.value.name + str(player.value.hand))
+            player = player.next
+
+
+        #for player in self.players:
+        #    for i in range(8):
+        #        player.hand.add(self.deck.draw())
 
         self.discard_pile.add(self.deck.draw())
+
+        print("top card = " + str(self.discard_pile))
 
         transcript = open('result.txt','w',encoding='utf-8')
         if debug:
@@ -654,6 +643,7 @@ class Game:
             player = self.players.peek()
 
             old_top_card = self.discard_pile.peek()
+            
 
             self = player.play(self)
 
@@ -662,12 +652,29 @@ class Game:
             # Player didn't play a card => must draw from pile
             if new_top_card == old_top_card:
                #TO DO
-               player.hand.add(self.draw_from_deck(1))
+                if self.draw_count != 0:    # Pige > 1 une carte
+                    self.draw_from_deck(self.draw_count)
+                    self.draw_count = 0     # Reset draw count 
+                else: 
+                    self.draw_from_deck(1)  # Pige une carte
 
             # Player played a card
-            else:
-                #TO DO      rien ??
-                pass
+            else:   # Check si carte spéciale 
+                #TO DO     
+                if new_top_card._rank == 'A':  # change l'ordre de jeu 
+                    self.players.reverse()
+
+                elif new_top_card._rank == '2': # +2
+                    self.draw_count += 2
+
+                elif new_top_card == Card('Q', 's'):  # +5
+                    self.draw_count += 5
+                
+                # J traité plus loin 
+
+                # Frime traitée dans play 
+
+                
             # Handling player change
             # Player has finished the game
             if len(player.hand) == 0 and player.score == 1:
@@ -686,14 +693,18 @@ class Game:
                     #TO DO
                     player.score -= 1
 
-                    for i in range(player.score):   # Pige un nbr de carte = à son nouveau score
-                        player.hand.add(self.deck.draw())    
+                    self.draw_from_deck(player.score)   # Pige un nbr de carte = à son nouveau score   
 
+                    print(str(player) + ' out cards. draw ' + str(player.score))
 
                 # Player has a single card left to play
                 elif len(player.hand) == 1:
                     #TO DO
-                    print("*Knock, knock* - " + player.name + "has a single card left!")
+                    print("*Knock, knock* - " + player.name + " has a single card left!")
+                
+                if new_top_card._rank == 'J' and old_top_card != new_top_card:    # skip next player
+                    self.players.next()
+
                 self.players.next()
         return result
 
